@@ -1,6 +1,7 @@
+#include <limits.h>
 #include <stdio.h>
 
-#define MAX 10001
+#define MAX 101
 
 #define max(x, y) x > y ? x : y
 
@@ -8,9 +9,39 @@ int p, d, w, c, k;
 
 int grafo[MAX][MAX];
 
+int memo[MAX][MAX][MAX];
+
 int habilidades[MAX], pesos[MAX];
 
-int dp(int i, int w, int d) { return 1; }
+int dp(int i, int w, int d) {
+  if (w < 0 || d < 0) {
+    return INT_MIN;
+  }
+
+  if (memo[i][w][d] != -1) {
+    return memo[i][w][d];
+  }
+
+  memo[i][w][d] = 0;
+
+  if (w >= pesos[i]) {
+    memo[i][w][d] = max(memo[i][w][d], habilidades[i] + dp(i, w - pesos[i], d));
+  }
+
+  for (int j = 1; j <= p; j++) {
+    if (grafo[i][j] == -1) {
+      continue;
+    }
+
+    int custo = grafo[i][j];
+
+    if (d >= custo) {
+      memo[i][w][d] = max(memo[i][w][d], dp(j, w, d - custo));
+    }
+  }
+
+  return memo[i][w][d];
+}
 
 int calculate_max_habilidade() {
   int max_total = 0;
@@ -32,6 +63,14 @@ int main() {
     for (int i = 0; i <= p; i++) {
       for (int j = 0; j <= p; j++) {
         grafo[i][j] = -1;
+      }
+    }
+
+    for (int i = 0; i <= p; i++) {
+      for (int j = 0; j <= w; j++) {
+        for (int k = 0; k <= d; k++) {
+          memo[i][j][k] = -1;
+        }
       }
     }
 
