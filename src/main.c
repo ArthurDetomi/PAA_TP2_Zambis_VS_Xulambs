@@ -43,6 +43,47 @@ int dp(int i, int w, int d) {
   return memo[i][w][d];
 }
 
+int dp_bup(int start, int maxW, int maxD, int maxP) {
+  memo[start][0][0] = 0;
+
+  for (int w = 0; w <= maxW; w++) {
+    for (int d = 0; d <= maxD; d++) {
+      for (int p = 1; p <= maxP; p++) {
+        if (memo[p][w][d] < 0)
+          continue;
+
+        if (w + pesos[p] <= maxW) {
+          memo[p][w + pesos[p]][d] =
+              max(memo[p][w + pesos[p]][d], memo[p][w][d] + habilidades[p]);
+        }
+
+        for (int v = 1; v <= maxP; v++) {
+          if (grafo[p][v] == -1)
+            continue;
+
+          int custo = grafo[p][v];
+
+          if (d + custo <= maxD) {
+            memo[v][w][d + custo] = max(memo[v][w][d + custo], memo[p][w][d]);
+          }
+        }
+      }
+    }
+  }
+
+  int maximo = 0;
+
+  for (int i = 1; i <= maxP; i++) {
+    for (int j = 0; j <= maxW; j++) {
+      for (int k = 0; k <= maxD; k++) {
+        maximo = max(maximo, memo[i][j][k]);
+      }
+    }
+  }
+
+  return maximo;
+}
+
 int calculate_max_habilidade() {
   int max_total = 0;
 
@@ -51,13 +92,25 @@ int calculate_max_habilidade() {
     for (int i = 0; i <= p; i++) {
       for (int j = 0; j <= w; j++) {
         for (int k = 0; k <= d; k++) {
+          memo[i][j][k] = INT_MIN;
+        }
+      }
+    }
+    // int max_per_path = dp(i, w, d);
+    int max_per_path = dp_bup(i, w, d, p);
+
+    for (int i = 1; i <= p; i++) {
+      for (int j = 0; j <= w; j++) {
+        for (int k = 0; k <= d; k++) {
           memo[i][j][k] = -1;
         }
       }
     }
 
-    int max_per_path = dp(i, w, d);
-    printf("max_per_path = %d\n", max_per_path);
+    int aux = dp(i, w, d);
+
+    printf("rec = %d, int = %d\n", aux, max_per_path);
+
     max_total = max(max_total, max_per_path);
   }
 
