@@ -48,7 +48,7 @@ int dp_bup(int start, int maxW, int maxD, int maxP) {
 
   for (int w = 0; w <= maxW; w++) {
     for (int d = 0; d <= maxD; d++) {
-      for (int p = 1; p <= maxP; p++) {
+      for (int p = start; p <= maxP; p++) {
         if (memo[p][w][d] < 0)
           continue;
 
@@ -73,9 +73,10 @@ int dp_bup(int start, int maxW, int maxD, int maxP) {
 
   int maximo = 0;
 
-  for (int i = 1; i <= maxP; i++) {
-    for (int j = 0; j <= maxW; j++) {
-      for (int k = 0; k <= maxD; k++) {
+  for (int i = 1; i <= p; i++) {
+    for (int j = 0; j <= w; j++) {
+      for (int k = 0; k <= d; k++) {
+
         maximo = max(maximo, memo[i][j][k]);
       }
     }
