@@ -47,7 +47,17 @@ int calculate_max_habilidade() {
   int max_total = 0;
 
   for (int i = 1; i <= p; i++) {
+
+    for (int i = 0; i <= p; i++) {
+      for (int j = 0; j <= w; j++) {
+        for (int k = 0; k <= d; k++) {
+          memo[i][j][k] = -1;
+        }
+      }
+    }
+
     int max_per_path = dp(i, w, d);
+    printf("max_per_path = %d\n", max_per_path);
     max_total = max(max_total, max_per_path);
   }
 
@@ -66,6 +76,7 @@ int main() {
       }
     }
 
+    /*
     for (int i = 0; i <= p; i++) {
       for (int j = 0; j <= w; j++) {
         for (int k = 0; k <= d; k++) {
@@ -73,6 +84,7 @@ int main() {
         }
       }
     }
+    */
 
     for (int i = 1; i <= p; i++) {
       int aux;
