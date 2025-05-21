@@ -103,23 +103,25 @@ int calculate_max_habilidade() {
 
     int soldadosPorPovo[p + 1];
 
-    for (int i = 1; i <= p; i++) {
-      soldadosPorPovo[i] = -1;
+    for (int l = 1; l <= p; l++) {
+      soldadosPorPovo[l] = -1;
     }
+
+    soldadosPorPovo[i] = 0;
 
     while (estados[curP][curW][curD].prevP != -1) {
       Estado prev = estados[curP][curW][curD];
 
       int diff =
           (memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
-
-      /*printf(
+      /*
+      printf(
           "curP=%d, curW=%d, curD=%d diff=%d, memo=%d memoAnterior=%d, calcu "
           "= %d\n",
           curP, curW, curW, curD, memo[curP][curW][curD],
           memo[prev.prevP][prev.prevW][prev.prevD],
           memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
-          */
+      */
 
       if (soldadosPorPovo[prev.prevP] == -1) {
         soldadosPorPovo[prev.prevP] = 0;
