@@ -13,6 +13,12 @@ int memo[MAX][MAX][MAX];
 
 int habilidades[MAX], pesos[MAX];
 
+typedef struct Estado {
+  int prevP, prevW, prevD;
+} Estado;
+
+Estado estados[MAX][MAX][MAX];
+
 int dp(int i, int w, int d) {
   if (w < 0 || d < 0) {
     return INT_MIN;
@@ -25,7 +31,12 @@ int dp(int i, int w, int d) {
   memo[i][w][d] = 0;
 
   if (w >= pesos[i]) {
-    memo[i][w][d] = max(memo[i][w][d], habilidades[i] + dp(i, w - pesos[i], d));
+    int novo_valor = habilidades[i] + dp(i, w - pesos[i], d);
+
+    if (novo_valor > memo[i][w][d]) {
+      estados[i][w][d] = (Estado){i, w - pesos[i], d};
+      memo[i][w][d] = novo_valor;
+    }
   }
 
   for (int j = 1; j <= p; j++) {
@@ -36,53 +47,16 @@ int dp(int i, int w, int d) {
     int custo = grafo[i][j];
 
     if (d >= custo) {
-      memo[i][w][d] = max(memo[i][w][d], dp(j, w, d - custo));
+      int novo_valor = dp(j, w, d - custo);
+
+      if (novo_valor > memo[i][w][d]) {
+        memo[i][w][d] = novo_valor;
+        estados[i][w][d] = (Estado){j, w, d - custo};
+      }
     }
   }
 
   return memo[i][w][d];
-}
-
-int dp_bup(int start, int maxW, int maxD, int maxP) {
-  memo[start][0][0] = 0;
-
-  for (int w = 0; w <= maxW; w++) {
-    for (int d = 0; d <= maxD; d++) {
-      for (int p = start; p <= maxP; p++) {
-        if (memo[p][w][d] < 0)
-          continue;
-
-        if (w + pesos[p] <= maxW) {
-          memo[p][w + pesos[p]][d] =
-              max(memo[p][w + pesos[p]][d], memo[p][w][d] + habilidades[p]);
-        }
-
-        for (int v = 1; v <= maxP; v++) {
-          if (grafo[p][v] == -1)
-            continue;
-
-          int custo = grafo[p][v];
-
-          if (d + custo <= maxD) {
-            memo[v][w][d + custo] = max(memo[v][w][d + custo], memo[p][w][d]);
-          }
-        }
-      }
-    }
-  }
-
-  int maximo = 0;
-
-  for (int i = 1; i <= p; i++) {
-    for (int j = 0; j <= w; j++) {
-      for (int k = 0; k <= d; k++) {
-
-        maximo = max(maximo, memo[i][j][k]);
-      }
-    }
-  }
-
-  return maximo;
 }
 
 int calculate_max_habilidade() {
@@ -94,21 +68,78 @@ int calculate_max_habilidade() {
       for (int j = 0; j <= w; j++) {
         for (int k = 0; k <= d; k++) {
           memo[i][j][k] = INT_MIN;
+          estados[i][j][k] = (Estado){-1, -1, -1};
         }
       }
     }
     // int max_per_path = dp(i, w, d);
-    int max_per_path = dp_bup(i, w, d, p);
+    // int max_per_path = dp_bup_final(w, d, p);
+    int max_per_path = 99;
 
     for (int i = 1; i <= p; i++) {
       for (int j = 0; j <= w; j++) {
         for (int k = 0; k <= d; k++) {
           memo[i][j][k] = -1;
+          estados[i][j][k] = (Estado){-1, -1, -1};
         }
       }
     }
 
     int aux = dp(i, w, d);
+    int maximo = 0, curP, curW, curD;
+
+    for (int i = 1; i <= p; i++) {
+      for (int j = 0; j <= w; j++) {
+        for (int k = 0; k <= d; k++) {
+          if (memo[i][j][k] >= maximo) {
+            maximo = memo[i][j][k];
+            curP = i;
+            curW = j;
+            curD = k;
+          }
+        }
+      }
+    }
+
+    int soldadosPorPovo[p + 1];
+
+    for (int i = 1; i <= p; i++) {
+      soldadosPorPovo[i] = -1;
+    }
+
+    while (estados[curP][curW][curD].prevP != -1) {
+      Estado prev = estados[curP][curW][curD];
+
+      int diff =
+          (memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
+
+      /*printf(
+          "curP=%d, curW=%d, curD=%d diff=%d, memo=%d memoAnterior=%d, calcu "
+          "= %d\n",
+          curP, curW, curW, curD, memo[curP][curW][curD],
+          memo[prev.prevP][prev.prevW][prev.prevD],
+          memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
+          */
+
+      if (soldadosPorPovo[prev.prevP] == -1) {
+        soldadosPorPovo[prev.prevP] = 0;
+      }
+
+      if (memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD] ==
+          habilidades[prev.prevP]) {
+        soldadosPorPovo[prev.prevP]++;
+      }
+
+      curP = prev.prevP;
+      curW = prev.prevW;
+      curD = prev.prevD;
+    }
+
+    for (int i = 1; i <= p; i++) {
+      if (soldadosPorPovo[i] != -1) {
+        printf("Povo %d: soldados %d recrutados\n", i, soldadosPorPovo[i]);
+      }
+    }
 
     printf("rec = %d, int = %d\n", aux, max_per_path);
 
@@ -144,6 +175,8 @@ int main() {
       int aux;
 
       scanf("%d %d %d", &aux, &pesos[i], &habilidades[i]);
+
+      printf("Povo %d: Habilidade %d\n", i, habilidades[i]);
     }
 
     for (int i = 0; i < c; i++) {
