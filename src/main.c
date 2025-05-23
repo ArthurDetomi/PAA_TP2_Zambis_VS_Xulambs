@@ -1,197 +1,115 @@
 #include <limits.h>
 #include <stdio.h>
 
-#define MAX 101
+#include "../include/entrada.h"
+#include "../include/mundo_zambis.h"
+#include "../include/resposta.h"
+#include "../include/strategydp.h"
+#include "../include/tempo.h"
 
-#define max(x, y) x > y ? x : y
+#include <stdlib.h>
 
-int p, d, w, c, k;
+int main(int argc, char *argv[]) {
+  // Verifica se os argumentos de linha de comando são válidos
+  if (!is_argumentos_validos(argc, argv)) {
+    printf("Erro: Parâmetros inválidos.\n");
+    printf("Uso correto: ./tp1 {estrateǵia} -i input/in.txt -o saida.txt\n");
+    printf("Onde '-i' indica o arquivo de entrada.\n");
+    printf("Onde '-o' indica o arquivo de saída (Opcional)\n");
+    printf("Estratégia aceita somente 1(Programação Dinâmica) e 2(Guloso)\n");
 
-int grafo[MAX][MAX];
-
-int memo[MAX][MAX][MAX];
-
-int habilidades[MAX], pesos[MAX];
-
-typedef struct Estado {
-  int prevP, prevW, prevD;
-} Estado;
-
-Estado estados[MAX][MAX][MAX];
-
-int dp(int i, int w, int d) {
-  if (w < 0 || d < 0) {
-    return INT_MIN;
+    return 1;
   }
 
-  if (memo[i][w][d] != -1) {
-    return memo[i][w][d];
+  // Obtém o caminho do arquivo de entrada a partir dos argumentos
+  char *input_path = argv[ARQUIVO_ENTRADA_P];
+
+  // Tenta abrir o arquivo de entrada no modo leitura
+  FILE *input_fp = fopen(input_path, "r");
+
+  // Verifica se o arquivo foi aberto com sucesso
+  if (input_fp == NULL) {
+    perror("Erro ao abrir arquivo de entrada\n");
+    return 1;
   }
 
-  memo[i][w][d] = 0;
+  // Obtém o caminho de arquivo de saída através dos argumentos
+  char output_path[80];
+  get_output_path(argc, argv, output_path);
 
-  if (w >= pesos[i]) {
-    int novo_valor = habilidades[i] + dp(i, w - pesos[i], d);
+  // Tenta criar um arquivo para salvar a saída principal
+  FILE *output_fp = fopen(output_path, "w");
 
-    if (novo_valor > memo[i][w][d]) {
-      estados[i][w][d] = (Estado){i, w - pesos[i], d};
-      memo[i][w][d] = novo_valor;
-    }
+  if (output_fp == NULL) {
+    perror("Erro ao abrir arquivo de saida\n");
+    return 1;
   }
 
-  for (int j = 1; j <= p; j++) {
-    if (grafo[i][j] == -1) {
-      continue;
+  int estrategia_escolhida = atoi(argv[ESTRATEGIA_P]);
+
+  int qtdTestes;
+
+  // Lê a quantidade de testes que serão realizados
+  fscanf(input_fp, "%d", &qtdTestes);
+
+  while (qtdTestes--) {
+    int num_povos, distancia_max, peso_max, qtd_caminhos;
+
+    fscanf(input_fp, "%d %d %d %d", &num_povos, &distancia_max, &peso_max,
+           &qtd_caminhos);
+
+    MundoZambis *mundo_zambis =
+        criar_mundo_zambis(num_povos, distancia_max, peso_max, qtd_caminhos);
+
+    if (mundo_zambis == NULL) {
+      perror("Falha ao alocar memória\n");
+      fclose(input_fp);
+      fclose(output_fp);
+      exit(1);
     }
 
-    int custo = grafo[i][j];
+    carregar_mundo_zambis_arquivo(mundo_zambis, input_fp);
 
-    if (d >= custo) {
-      int novo_valor = dp(j, w, d - custo);
+    printar_mundo_zambis(mundo_zambis);
 
-      if (novo_valor > memo[i][w][d]) {
-        memo[i][w][d] = novo_valor;
-        estados[i][w][d] = (Estado){j, w, d - custo};
+    CaminhoSolucao *caminho_solucao = NULL;
+
+    switch (estrategia_escolhida) {
+    case DP:
+      caminho_solucao = get_max_habilidade_path(mundo_zambis);
+      break;
+    }
+
+    if (caminho_solucao == NULL) {
+      perror("Falha ao alocar memória\n");
+      fclose(input_fp);
+      fclose(output_fp);
+      exit(1);
+    }
+
+    printf("Maxhabilidade = %d\n", caminho_solucao->maxHabilidade);
+
+    fprintf(output_fp, "%d ", caminho_solucao->maxHabilidade);
+    for (int i = 0; i < caminho_solucao->qtd_visitados; i++) {
+      printf("Povo %d: qtdSoldados = %d\n",
+             caminho_solucao->recrutamentos[i].povo,
+             caminho_solucao->recrutamentos[i].qtdSoldados);
+
+      fprintf(output_fp, "%d %d", caminho_solucao->recrutamentos[i].povo,
+              caminho_solucao->recrutamentos[i].qtdSoldados);
+
+      if (i != caminho_solucao->qtd_visitados - 1) {
+        fprintf(output_fp, " ");
       }
     }
+    fprintf(output_fp, "\n");
+
+    destruir_caminho_solucao(&caminho_solucao);
+    destruir_mundo_zambis(mundo_zambis);
   }
 
-  return memo[i][w][d];
-}
-
-int calculate_max_habilidade() {
-  int max_total = 0;
-
-  for (int i = 1; i <= p; i++) {
-
-    for (int i = 0; i <= p; i++) {
-      for (int j = 0; j <= w; j++) {
-        for (int k = 0; k <= d; k++) {
-          memo[i][j][k] = INT_MIN;
-          estados[i][j][k] = (Estado){-1, -1, -1};
-        }
-      }
-    }
-    // int max_per_path = dp(i, w, d);
-    // int max_per_path = dp_bup_final(w, d, p);
-    int max_per_path = 99;
-
-    for (int i = 1; i <= p; i++) {
-      for (int j = 0; j <= w; j++) {
-        for (int k = 0; k <= d; k++) {
-          memo[i][j][k] = -1;
-          estados[i][j][k] = (Estado){-1, -1, -1};
-        }
-      }
-    }
-
-    int aux = dp(i, w, d);
-    int maximo = 0, curP, curW, curD;
-
-    for (int i = 1; i <= p; i++) {
-      for (int j = 0; j <= w; j++) {
-        for (int k = 0; k <= d; k++) {
-          if (memo[i][j][k] >= maximo) {
-            maximo = memo[i][j][k];
-            curP = i;
-            curW = j;
-            curD = k;
-          }
-        }
-      }
-    }
-
-    int soldadosPorPovo[p + 1];
-
-    for (int l = 1; l <= p; l++) {
-      soldadosPorPovo[l] = -1;
-    }
-
-    soldadosPorPovo[i] = 0;
-
-    while (estados[curP][curW][curD].prevP != -1) {
-      Estado prev = estados[curP][curW][curD];
-
-      int diff =
-          (memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
-      /*
-      printf(
-          "curP=%d, curW=%d, curD=%d diff=%d, memo=%d memoAnterior=%d, calcu "
-          "= %d\n",
-          curP, curW, curW, curD, memo[curP][curW][curD],
-          memo[prev.prevP][prev.prevW][prev.prevD],
-          memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD]);
-      */
-
-      if (soldadosPorPovo[prev.prevP] == -1) {
-        soldadosPorPovo[prev.prevP] = 0;
-      }
-
-      if (memo[curP][curW][curD] - memo[prev.prevP][prev.prevW][prev.prevD] ==
-          habilidades[prev.prevP]) {
-        soldadosPorPovo[prev.prevP]++;
-      }
-
-      curP = prev.prevP;
-      curW = prev.prevW;
-      curD = prev.prevD;
-    }
-
-    for (int i = 1; i <= p; i++) {
-      if (soldadosPorPovo[i] != -1) {
-        printf("Povo %d: soldados %d recrutados\n", i, soldadosPorPovo[i]);
-      }
-    }
-
-    printf("rec = %d, int = %d\n", aux, max_per_path);
-
-    max_total = max(max_total, max_per_path);
-  }
-
-  return max_total;
-}
-
-int main() {
-  scanf("%d", &k);
-
-  while (k--) {
-    scanf("%d %d %d %d", &p, &d, &w, &c);
-
-    for (int i = 0; i <= p; i++) {
-      for (int j = 0; j <= p; j++) {
-        grafo[i][j] = -1;
-      }
-    }
-
-    /*
-    for (int i = 0; i <= p; i++) {
-      for (int j = 0; j <= w; j++) {
-        for (int k = 0; k <= d; k++) {
-          memo[i][j][k] = -1;
-        }
-      }
-    }
-    */
-
-    for (int i = 1; i <= p; i++) {
-      int aux;
-
-      scanf("%d %d %d", &aux, &pesos[i], &habilidades[i]);
-
-      printf("Povo %d: Habilidade %d\n", i, habilidades[i]);
-    }
-
-    for (int i = 0; i < c; i++) {
-      int pi, pj, di;
-      scanf("%d %d %d", &pi, &pj, &di);
-
-      grafo[pi][pj] = di;
-    }
-
-    int maximo_habilidade = calculate_max_habilidade();
-
-    printf("%d\n", maximo_habilidade);
-  }
+  fclose(input_fp);
+  fclose(output_fp);
 
   return 0;
 }
