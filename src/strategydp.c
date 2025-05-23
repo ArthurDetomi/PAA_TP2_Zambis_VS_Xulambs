@@ -165,14 +165,14 @@ CaminhoSolucao *buscar_caminho_max_habilidade(MundoZambis *mundo,
   int qtd_povos = mundo->qtd_povos, peso_max = mundo->nave.peso_max,
       distancia_max = mundo->nave.distancia_max;
 
-  int max_total = 0, povo_inicio;
-
   CaminhoSolucao **caminhos =
       (CaminhoSolucao **)calloc((qtd_povos + 1), sizeof(CaminhoSolucao *));
 
   if (caminhos == NULL) {
     exit(1);
   }
+
+  int max_total = 0, povo_inicio;
 
   for (int povo_i = 1; povo_i <= qtd_povos; povo_i++) {
     // Pre-Processamento: Reseta as matrizes utilizadas pela DP para o caso

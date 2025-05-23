@@ -66,32 +66,3 @@ void *get_output_path(int argc, char *argv[], char *output_path) {
 
   return output_path;
 }
-
-void printar_mundo_zambis(MundoZambis *mundo) {
-  printf("=== MUNDO ZAMBIS ===\n");
-
-  printf("Quantidade de povos: %d\n", mundo->qtd_povos);
-  printf("Distância máxima da nave: %d\n", mundo->nave.distancia_max);
-  printf("Peso máximo da nave: %d\n", mundo->nave.peso_max);
-  printf("Quantidade de caminhos: %d\n\n", mundo->qtd_caminhos);
-
-  printf("== Povos ==\n");
-  for (int i = 1; i <= mundo->qtd_povos; i++) {
-    printf("Povo %d: Habilidade = %d, Peso = %d\n", i,
-           mundo->habilidade_por_povo[i], mundo->pesos_por_povo[i]);
-  }
-
-  printf("\n== Grafo de distâncias ==\n");
-  for (int i = 1; i <= mundo->qtd_povos; i++) {
-    for (int j = 1; j <= mundo->qtd_povos; j++) {
-      int d = mundo->grafo[i][j];
-      if (d == FLAG_SEM_CAMINHO)
-        printf("  - ");
-      else
-        printf("%3d ", d);
-    }
-    printf(" <- povo %d\n", i);
-  }
-
-  printf("======================\n");
-}

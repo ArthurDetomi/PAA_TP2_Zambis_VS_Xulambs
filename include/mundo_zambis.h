@@ -2,6 +2,7 @@
 #define MUNDO_ZAMBIS_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #define FLAG_SEM_CAMINHO -1
 
@@ -11,7 +12,7 @@ typedef struct NaveZorc {
 
 typedef struct MundoZambis {
   int **grafo;
-  int *povo, qtd_povos, qtd_caminhos;
+  int qtd_povos, qtd_caminhos;
   int *habilidade_por_povo, *pesos_por_povo;
   NaveZorc nave;
 } MundoZambis;
@@ -29,10 +30,5 @@ int get_distancia_entre_povos(MundoZambis *mundo, int povo_u, int povo_v);
 
 // Desaloca memória do TAD mundo de zambis
 void destruir_mundo_zambis(MundoZambis *mundo);
-
-#include "mundo_zambis.h"
-#include <stdio.h>
-
-void printar_mundo_zambis(MundoZambis *mundo);
 
 #endif

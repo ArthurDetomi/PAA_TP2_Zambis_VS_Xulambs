@@ -79,8 +79,6 @@ int main(int argc, char *argv[]) {
     // Carrega o mundo de zambis com as espeficações do arquivo de input
     carregar_mundo_zambis_arquivo(mundo_zambis, input_fp);
 
-    // printar_mundo_zambis(mundo_zambis);
-
     // Inicia o temporizador para medir o tempo deste teste específico
     Temporizador tempo_teste;
     iniciarTemporizador(&tempo_teste);
