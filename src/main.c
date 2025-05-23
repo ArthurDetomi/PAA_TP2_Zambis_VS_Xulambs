@@ -4,6 +4,7 @@
 #include "../include/entrada.h"
 #include "../include/mundo_zambis.h"
 #include "../include/resposta.h"
+#include "../include/strategy_guloso.h"
 #include "../include/strategydp.h"
 #include "../include/tempo.h"
 
@@ -90,6 +91,9 @@ int main(int argc, char *argv[]) {
     switch (estrategia_escolhida) {
     case DP:
       caminho_solucao = get_max_habilidade_path(mundo_zambis);
+      break;
+    case GULOSO:
+      caminho_solucao = get_caminho_max_habilidade(mundo_zambis);
       break;
     }
 
