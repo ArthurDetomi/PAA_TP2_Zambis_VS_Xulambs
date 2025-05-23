@@ -86,6 +86,10 @@ int get_habilidade_por_povo(MundoZambis *mundo, int povo) {
 }
 
 bool sao_povos_vizinhos(MundoZambis *mundo, int povo_u, int povo_v) {
+  if (povo_u == povo_v) {
+    return false;
+  }
+
   return mundo->grafo[povo_u][povo_v] != FLAG_SEM_CAMINHO;
 }
 

@@ -63,7 +63,7 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
 
   int visitados = 0;
 
-  while (true) {
+  while (peso_restante > 0 && distancia_atual > 0) {
     if (soldadosPorPovo[povo_atual] == -1) {
       soldadosPorPovo[povo_atual] = 0;
       ordemVisitados[visitados] = povo_atual;
@@ -104,7 +104,7 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
 
     quickSort(vizinhos, 0, qtd_vizinhos - 1, mundo, povo_atual);
 
-    int povo_antes_visita = povo_atual;
+    int povo_anterior = povo_atual;
 
     if (distancia_atual == 0) {
       break;
@@ -113,18 +113,20 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
     for (int i = 0; i < qtd_vizinhos; i++) {
       int vizinho = vizinhos[i];
 
-      int custo = get_distancia_entre_povos(mundo, povo_atual, vizinho);
+      int distancia_vizinho =
+          get_distancia_entre_povos(mundo, povo_atual, vizinho);
 
-      if (vizinho != povo_atual &&
-          get_peso_por_povo(mundo, vizinho) <= peso_restante &&
-          distancia_atual >= custo) {
+      int peso_por_povo_viz = get_peso_por_povo(mundo, vizinho);
+
+      if (peso_por_povo_viz <= peso_restante &&
+          distancia_atual >= distancia_vizinho) {
         povo_atual = vizinho;
-        distancia_atual -= custo;
+        distancia_atual -= distancia_vizinho;
         break;
       }
     }
 
-    if (povo_antes_visita == povo_atual) {
+    if (povo_anterior == povo_atual) {
       break;
     }
   }
