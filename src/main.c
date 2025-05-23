@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
     fscanf(input_fp, "%d %d %d %d", &num_povos, &distancia_max, &peso_max,
            &qtd_caminhos);
 
+    // Cria um mundo de zambis com as espeficições fornecidas
     MundoZambis *mundo_zambis =
         criar_mundo_zambis(num_povos, distancia_max, peso_max, qtd_caminhos);
 
@@ -74,6 +75,7 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
+    // Carrega o mundo de zambis com as espeficações do arquivo de input
     carregar_mundo_zambis_arquivo(mundo_zambis, input_fp);
 
     // printar_mundo_zambis(mundo_zambis);
@@ -84,6 +86,7 @@ int main(int argc, char *argv[]) {
 
     CaminhoSolucao *caminho_solucao = NULL;
 
+    // Executa a estratégia escolhida
     switch (estrategia_escolhida) {
     case DP:
       caminho_solucao = get_max_habilidade_path(mundo_zambis);
@@ -101,6 +104,7 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
+    // Imprime resultados inicio - Escrevendo no arquivo e terminal
     printf("\tTeste %d\n", num_teste);
     printf("Máximo de habilidade = %d\n", caminho_solucao->maxHabilidade);
 
@@ -122,7 +126,9 @@ int main(int argc, char *argv[]) {
     fprintf(output_fp, "\n");
     printf("Tempo de execução:\n");
     imprimirTempos(&tempo_teste);
+    // Imprime resultados fim - Escrevendo no arquivo e terminal
 
+    // Liberando memória da heap utilizada
     destruir_caminho_solucao(&caminho_solucao);
     destruir_mundo_zambis(mundo_zambis);
 
@@ -137,6 +143,7 @@ int main(int argc, char *argv[]) {
   printf("Tempo total de execução:\n");
   imprimirTempos(&tempo_total);
 
+  // Fecha todos os arquivos
   fclose(input_fp);
   fclose(output_fp);
 

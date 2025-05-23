@@ -1,7 +1,7 @@
 #ifndef ENTRADA_H
 #define ENTRADA_H
 
-#include "../include/mundo_zambis.h"
+#include "mundo_zambis.h"
 
 #include <stdbool.h>
 #include <stdio.h>
