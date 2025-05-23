@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  // Inicia o temporizador para medir o tempo total de execução
+  Temporizador tempo_total;
+  iniciarTemporizador(&tempo_total);
+
   // Obtém o caminho de arquivo de saída através dos argumentos
   char output_path[80];
   get_output_path(argc, argv, output_path);
@@ -52,6 +56,8 @@ int main(int argc, char *argv[]) {
   // Lê a quantidade de testes que serão realizados
   fscanf(input_fp, "%d", &qtdTestes);
 
+  int num_teste = 1;
+
   while (qtdTestes--) {
     int num_povos, distancia_max, peso_max, qtd_caminhos;
 
@@ -70,7 +76,11 @@ int main(int argc, char *argv[]) {
 
     carregar_mundo_zambis_arquivo(mundo_zambis, input_fp);
 
-    printar_mundo_zambis(mundo_zambis);
+    // printar_mundo_zambis(mundo_zambis);
+
+    // Inicia o temporizador para medir o tempo deste teste específico
+    Temporizador tempo_teste;
+    iniciarTemporizador(&tempo_teste);
 
     CaminhoSolucao *caminho_solucao = NULL;
 
@@ -80,18 +90,25 @@ int main(int argc, char *argv[]) {
       break;
     }
 
+    // Finaliza a medição de tempo para este teste
+    finalizarTemporizador(&tempo_teste);
+
     if (caminho_solucao == NULL) {
       perror("Falha ao alocar memória\n");
+      destruir_mundo_zambis(mundo_zambis);
       fclose(input_fp);
       fclose(output_fp);
       exit(1);
     }
 
-    printf("Maxhabilidade = %d\n", caminho_solucao->maxHabilidade);
+    printf("\tTeste %d\n", num_teste);
+    printf("Máximo de habilidade = %d\n", caminho_solucao->maxHabilidade);
 
     fprintf(output_fp, "%d ", caminho_solucao->maxHabilidade);
+
+    printf("Caminho percorrido:\n");
     for (int i = 0; i < caminho_solucao->qtd_visitados; i++) {
-      printf("Povo %d: qtdSoldados = %d\n",
+      printf("Povo %d: Quantidade de soldados recrutados = %d\n",
              caminho_solucao->recrutamentos[i].povo,
              caminho_solucao->recrutamentos[i].qtdSoldados);
 
@@ -103,10 +120,22 @@ int main(int argc, char *argv[]) {
       }
     }
     fprintf(output_fp, "\n");
+    printf("Tempo de execução:\n");
+    imprimirTempos(&tempo_teste);
 
     destruir_caminho_solucao(&caminho_solucao);
     destruir_mundo_zambis(mundo_zambis);
+
+    num_teste++;
+    printf("\n");
   }
+
+  // Finaliza a medição do tempo total de execução
+  finalizarTemporizador(&tempo_total);
+
+  // Exibe o tempo total de execução do programa
+  printf("Tempo total de execução:\n");
+  imprimirTempos(&tempo_total);
 
   fclose(input_fp);
   fclose(output_fp);
