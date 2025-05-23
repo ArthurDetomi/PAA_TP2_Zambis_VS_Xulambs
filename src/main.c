@@ -104,29 +104,13 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    // Imprime resultados inicio - Escrevendo no arquivo e terminal
+    // Escreve no terminal o caminho solução
     printf("\tTeste %d\n", num_teste);
-    printf("Máximo de habilidade = %d\n", caminho_solucao->maxHabilidade);
-
-    fprintf(output_fp, "%d ", caminho_solucao->maxHabilidade);
-
-    printf("Caminho percorrido:\n");
-    for (int i = 0; i < caminho_solucao->qtd_visitados; i++) {
-      printf("Povo %d: Quantidade de soldados recrutados = %d\n",
-             caminho_solucao->recrutamentos[i].povo,
-             caminho_solucao->recrutamentos[i].qtdSoldados);
-
-      fprintf(output_fp, "%d %d", caminho_solucao->recrutamentos[i].povo,
-              caminho_solucao->recrutamentos[i].qtdSoldados);
-
-      if (i != caminho_solucao->qtd_visitados - 1) {
-        fprintf(output_fp, " ");
-      }
-    }
-    fprintf(output_fp, "\n");
-    printf("Tempo de execução:\n");
+    imprimir_caminho_solucao_terminal(caminho_solucao);
     imprimirTempos(&tempo_teste);
-    // Imprime resultados fim - Escrevendo no arquivo e terminal
+
+    // Escreve no arquivo de saída a solução no formato esperado
+    escrever_caminho_solucao_arquivo(caminho_solucao, output_fp);
 
     // Liberando memória da heap utilizada
     destruir_caminho_solucao(&caminho_solucao);
@@ -140,7 +124,6 @@ int main(int argc, char *argv[]) {
   finalizarTemporizador(&tempo_total);
 
   // Exibe o tempo total de execução do programa
-  printf("Tempo total de execução:\n");
   imprimirTempos(&tempo_total);
 
   // Fecha todos os arquivos

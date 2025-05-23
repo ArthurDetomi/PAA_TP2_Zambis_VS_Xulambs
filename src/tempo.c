@@ -37,6 +37,7 @@ double calcularTempoSistema(Temporizador *t) {
 
 // Imprime todos os tempos de execução de forma legível
 void imprimirTempos(Temporizador *t) {
+  printf("Tempo de execução:\n");
   printf("Tempo Real: %.8f segundos\n", calcularTempoReal(t));
   printf("Tempo Sistema: %.8f segundos\n", calcularTempoSistema(t));
 }
