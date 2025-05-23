@@ -60,9 +60,6 @@ int calc_maximo_habilidade_dp(int povo_i, int peso_w, int dist_d,
 
 CaminhoSolucao *reconstruir_caminho_dp(int povo_inicio, DPData *dp_data,
                                        MundoZambis *mundo) {
-  int maximo = 0, curP = povo_inicio, curW = dp_data->peso_max,
-      curD = dp_data->distancia_max;
-
   int soldadosPorPovo[dp_data->qtd_povos + 1];
   int ordemVisitados[dp_data->qtd_povos + 1];
 
@@ -75,8 +72,12 @@ CaminhoSolucao *reconstruir_caminho_dp(int povo_inicio, DPData *dp_data,
 
   int visitados = 1;
 
-  while (dp_data->estados[curP][curW][curD].prev_povo != -1) {
-    Estado prev = dp_data->estados[curP][curW][curD];
+  int maximo = 0, povo_atual = povo_inicio, peso_atual = dp_data->peso_max,
+      distancia_atual = dp_data->distancia_max;
+
+  while (dp_data->estados[povo_atual][peso_atual][distancia_atual].prev_povo !=
+         -1) {
+    Estado prev = dp_data->estados[povo_atual][peso_atual][distancia_atual];
 
     if (soldadosPorPovo[prev.prev_povo] == -1) {
       soldadosPorPovo[prev.prev_povo] = 0;
@@ -87,16 +88,16 @@ CaminhoSolucao *reconstruir_caminho_dp(int povo_inicio, DPData *dp_data,
     }
 
     int diff =
-        (dp_data->memo[curP][curW][curD] -
+        (dp_data->memo[povo_atual][peso_atual][distancia_atual] -
          dp_data->memo[prev.prev_povo][prev.prev_peso][prev.prev_distancia]);
 
     if (diff == get_habilidade_por_povo(mundo, prev.prev_povo)) {
       soldadosPorPovo[prev.prev_povo]++;
     }
 
-    curP = prev.prev_povo;
-    curW = prev.prev_peso;
-    curD = prev.prev_distancia;
+    povo_atual = prev.prev_povo;
+    peso_atual = prev.prev_peso;
+    distancia_atual = prev.prev_distancia;
   }
 
   CaminhoSolucao *caminho_solucao = alocar_caminho_solucao(visitados + 1);
@@ -116,7 +117,8 @@ CaminhoSolucao *reconstruir_caminho_dp(int povo_inicio, DPData *dp_data,
   return caminho_solucao;
 }
 
-CaminhoSolucao *solve(MundoZambis *mundo, DPData *dp_data) {
+CaminhoSolucao *buscar_caminho_max_habilidade(MundoZambis *mundo,
+                                              DPData *dp_data) {
   int qtd_povos = mundo->qtd_povos, peso_max = mundo->nave.peso_max,
       distancia_max = mundo->nave.distancia_max;
 
@@ -168,7 +170,8 @@ CaminhoSolucao *get_max_habilidade_path(MundoZambis *mundo) {
   DPData dp_data;
   inicializar_DPDAta(&dp_data, qtd_povos, peso_max, distancia_max);
 
-  CaminhoSolucao *caminho_solucao = solve(mundo, &dp_data);
+  CaminhoSolucao *caminho_solucao =
+      buscar_caminho_max_habilidade(mundo, &dp_data);
 
   liberar_DPDAta(&dp_data, qtd_povos + 1, peso_max + 1);
 
