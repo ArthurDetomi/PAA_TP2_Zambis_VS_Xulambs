@@ -2,6 +2,14 @@
 
 #include <stdlib.h>
 
+#define NAO_VISITADO -1
+
+/*
+  Calcula a eficiência de visitar um povo vizinho a partir do povo atual.
+  Eficiência = (habilidade / peso) / distância
+  A ideia é priorizar visitas com maior retorno de habilidade por unidade de
+  peso e distância.
+*/
 double eficiencia_visita(int povo_origem, int povo_vizinho,
                          MundoZambis *mundo) {
   int habilidade = get_habilidade_por_povo(mundo, povo_vizinho);
@@ -37,6 +45,11 @@ int particiona(int *V, int inicio, int fim, MundoZambis *mundo,
   return dir;
 }
 
+/*
+  Ordena os povos em ordem decrescente de eficiência de visita.
+  Estratégia gulosa: prioriza os povos mais "valiosos" para recrutar soldados.
+  Complexidade: O(n log n)
+*/
 void quickSort(int *V, int inicio, int fim, MundoZambis *mundo, int povo_u) {
   int pivo;
   if (fim > inicio) {
@@ -46,6 +59,11 @@ void quickSort(int *V, int inicio, int fim, MundoZambis *mundo, int povo_u) {
   }
 }
 
+/*
+  Estratégia gulosa:
+  A cada passo, recruta o máximo possível de soldados do povo atual,tenta
+  visitar vizinhos mais eficientes enquanto houver peso e distância disponíveis.
+*/
 CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
                                                MundoZambis *mundo) {
   int povo_atual = povo_inicio, habilidade_atual = 0,
@@ -56,15 +74,14 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
   int soldadosPorPovo[qtd_povos + 1];
   int ordemVisitados[qtd_povos + 1];
 
-  // Inicializa com -1 para marcar não foi visitado
   for (int i = 1; i <= qtd_povos; i++) {
-    soldadosPorPovo[i] = -1;
+    soldadosPorPovo[i] = NAO_VISITADO;
   }
 
   int visitados = 0;
 
   while (peso_restante > 0 && distancia_atual > 0) {
-    if (soldadosPorPovo[povo_atual] == -1) {
+    if (soldadosPorPovo[povo_atual] == NAO_VISITADO) {
       soldadosPorPovo[povo_atual] = 0;
       ordemVisitados[visitados] = povo_atual;
       visitados++;
@@ -72,6 +89,7 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
 
     int peso_povo_atual = get_peso_por_povo(mundo, povo_atual);
 
+    // Pegar o máximo de soldados possível do povo atual
     if (peso_restante >= peso_povo_atual) {
       int qtd_soldados_recrutados = peso_restante / peso_povo_atual;
 
@@ -102,6 +120,7 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
       qtd_vizinhos++;
     }
 
+    // Ordena todos os povos vizinhos do povo_atual por odem de eficiência
     quickSort(vizinhos, 0, qtd_vizinhos - 1, mundo, povo_atual);
 
     int povo_anterior = povo_atual;
@@ -126,6 +145,7 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
       }
     }
 
+    // Caso não tenha sido possível viajar para nenhum outro local
     if (povo_anterior == povo_atual) {
       break;
     }
@@ -150,6 +170,10 @@ CaminhoSolucao *max_habilidade_guloso_por_povo(int povo_inicio,
   return caminho_solucao;
 }
 
+/*
+  Executa a estratégia gulosa a partir de cada povo como ponto inicial.
+  Retorna o caminho com maior habilidade total recrutada.
+*/
 CaminhoSolucao *get_caminho_max_habilidade(MundoZambis *mundo) {
   int qtd_povos = mundo->qtd_povos, peso_max = mundo->nave.peso_max,
       distancia_max = mundo->nave.distancia_max;
@@ -158,11 +182,14 @@ CaminhoSolucao *get_caminho_max_habilidade(MundoZambis *mundo) {
       (CaminhoSolucao **)calloc((qtd_povos + 1), sizeof(CaminhoSolucao *));
 
   if (caminhos == NULL) {
+    perror("Erro ao alocar memória\n");
     exit(1);
   }
 
+  // Para marcar o caminho realizado mais eficiente e de qual povo se partiu
   int max_total = 0, povo_inicio;
 
+  // Para cada povo do mundo de zambis executa a estratégia gulosa
   for (int povo_i = 1; povo_i <= qtd_povos; povo_i++) {
     CaminhoSolucao *caminho_solucao =
         max_habilidade_guloso_por_povo(povo_i, mundo);
