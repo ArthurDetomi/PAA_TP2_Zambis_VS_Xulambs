@@ -62,9 +62,7 @@ Exemplos:
 
 [Instruções](/docs/tp2.pdf)
 
-🚧 Em construção. Será adicionada até a data de entrega.
-
-[Documentação](#)
+[Documentação](/docs/Documentação TP2 - Oscar e  Geraldo.pdf)
 
 ## 🤝 Dupla
 
