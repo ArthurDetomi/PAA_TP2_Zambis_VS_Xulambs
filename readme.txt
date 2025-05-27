@@ -36,7 +36,7 @@ make clean
 Para rodar o programa, utilize o seguinte formato:
 
 ```bash
-./tp1 {estratégia} -i entrada.txt -o saida.txt
+./tp2 {estratégia} -i entrada.txt -o saida.txt
 ```
 
 - `{estratégia}` deve ser `1` para usar a abordagem de programação dinâmica ou `2` para usar a abordagem gulosa.
@@ -47,10 +47,10 @@ Para rodar o programa, utilize o seguinte formato:
 Exemplos:
 
 ```bash
-./tp1 1 -i entrada.txt
+./tp2 1 -i entrada.txt
 # Gera o arquivo output/output.txt
 
-./tp1 2 -i entrada.txt -o resultado.txt
+./tp2 2 -i entrada.txt -o resultado.txt
 # Gera o arquivo resultado.txt
 ```
 
@@ -62,7 +62,7 @@ Exemplos:
 
 [Instruções](/docs/tp2.pdf)
 
-[Documentação](/docs/Documentação TP2 - Oscar e  Geraldo.pdf)
+[Documentação](/docs/Documentação%20TP2%20-%20Oscar%20e%20%20Geraldo.pdf)
 
 ## 🤝 Dupla
 
