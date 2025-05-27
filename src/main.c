@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   // Verifica se os argumentos de linha de comando são válidos
   if (!is_argumentos_validos(argc, argv)) {
     printf("Erro: Parâmetros inválidos.\n");
-    printf("Uso correto: ./tp1 {estrateǵia} -i input/in.txt -o saida.txt\n");
+    printf("Uso correto: ./tp2 {estrateǵia} -i input/in -o saida.txt\n");
     printf("Onde '-i' indica o arquivo de entrada.\n");
     printf("Onde '-o' indica o arquivo de saída (Opcional)\n");
     printf("Estratégia aceita somente 1(Programação Dinâmica) e 2(Guloso)\n");
