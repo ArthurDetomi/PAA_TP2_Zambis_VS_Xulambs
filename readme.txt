@@ -62,7 +62,7 @@ Exemplos:
 
 [Instruções](/docs/tp2.pdf)
 
-[Documentação](/docs/Documentação%20TP2%20-%20Oscar%20e%20%20Geraldo.pdf)
+[Documentação](/docs/Documentação TP2 - Oscar e Geraldo.pdf)
 
 ## 🤝 Dupla
 
